@@ -148,12 +148,36 @@ The subsections below describe stages of this process and the options or conside
 
 \subsection{Requirements}
 
-We want to demonstrate that our shear estimation pipelines can recover unbiased shear-shear and tangential shear signals to better than X\% for in $n_z$ redshift bins for $0<z<z_{
-mathrm{max}}$ for some range of scales $\theta_{\mathrm{min}} < \theta < \theta_{\mathrm{max}}$ (we could also phrase in terms of $l$ and $C_l$. This requires:
-\begin{equation}
-(1+m_i)(1+m_j)(\theta) 
-\end{equation}
+It's important to define cosmology-driven requirements for the simulation, as these will set the simulation volume requirements and thus the computing requirements etc.. Particularly important to do this if we e.g. need to find/apply for more computing resources.
 
+I've brain-dumped a few thoughts on a couple of different (but certainly related) approaches we could take to this, (i) how many galaxies/galaxy pairs do we need to test our desired statistcs to a given precision? (ii) How many realisations of our survey do we need test our desired statistics to a given precision? I think the second approach is probably simpler because a simulation of our survey will automatically (of course limited by the simulation realism) have distributions of certain relevant survey properties (e.g. noise, PSF) that match the real data. 
+
+We want to demonstrate that our shear estimation pipelines can recover unbiased shear-shear and tangential shear signals to better than $X_i\%$, $Y_i\%$  for in $n_z$ redshift bins, $i$, for $0<z<z_{\mathrm{max}}$ for some range of scales $\theta_{\mathrm{min}} < \theta < \theta_{\mathrm{max}}$ (we could also phrase in terms of $l$ and $C_l$. This requires:
+\begin{align}
+\left<(1+m_i)(1+m_j)\right>(\theta) + \left<c_i c_j\right>(\theta)/\left<\gamma \gamma\right>(\theta) < X\%, \\ 
+\left<n_{\mathrm{lens}}(1+m_i)\right> < Y\%.
+\end{align}
+
+Ignoring the scale dependence, assuming a constant shear, and that we calculate $m$ as
+\begin{equation}
+\left<m_i\right> = \left<\frac{\gamma_{\mathrm{obs}}-\gamma_{\mathrm{true}}}{\gamma_{\mathrm{true}}}\right>,
+\end{equation}
+where the (possibly weighed) averaging is over all galaxies in redshift bin $i$.
+\begin{equation}
+\sigma_m = \frac{\sigma_e}{\gamma_{\mathrm{true}} \sqrt{N_{\mathrm{gal}}}}
+\end{equation}
+We want e.g. $\sigma_{m_i} < 0.5 X_i\%$, so e.g. for $X_i = 1\%$, $\gamma_{\mathrm{true}}=0.01$, $\sigma_e = 0.2$, we'd need to simulate $1.6\times10^7$ galaxies per redshift bin.
+
+So what if we are worried about scale dependence (why would we be? blending, spatially varying observing conditions?). Well then we can write some requriements for the number of simulated pairs which populate a given angular bin etc....
+
+An alternative way to think about the requriements is to first assume that we want to simulated $N_{\mathrm{sim}}$ copies of our survey ($N_{\mathrm{sim}}$ could, but probably wouldn't be less than 1). This approach has the advantage that (to the extent that the simulated survey properties are realistic), the simulated survey properties (e.g. noise, PSF etc.) will have the same distributions as the data. If we want to know the accuracy to which our pipeline recovers some statistic  to better than a fraction $f$ of the shape noise errors on that statistic we have in the real data, then we require $N_{\mathrm{sim}} = 1/f^2$ realisations of our data. 
+
+Discussion points:
+\begin{itemize}
+\item{What should $f$ be? Note that most of the statistics we use are cosmic variance limitied on large scales, so beating down the shape noise may not be so relevant. We will know the `cosmic variance' (or rather we'll know the particular realisation of the cosmological signal) in the simulation.}
+\item{How can we reduce $N_{\mathrm{sim}}$? Boost the shear signal - the stronger the simulate signal, the better fractional accuracy can be achieved? How about ring-test type tricks to reduce shape noise? Ideas for this may be needed to make this computationally feasible.}
+\item{What kind of shear fields should we use? If we use something realistic (e.g. from ray-tracing), how do we test that we're recovering it correctly, given that a given method will only use a subset of the galaxies...}
+\end{itemize}
 
 \subsection{Input Catalogues}
 
