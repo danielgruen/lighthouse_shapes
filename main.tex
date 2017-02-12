@@ -21,7 +21,8 @@
 
 % Add your own macros here:
 
-\newcommand{\mcal}{\textsc{metacalibration}}
+\newcommand{\Mcal}{\texttt{Metacalibration}}
+\newcommand{\mcal}{\texttt{metacalibration}}
 \newcommand{\snr}{S/N}
 
 
@@ -286,7 +287,7 @@ mathrm{max}}$ for some range of scales $\theta_{\mathrm{min}} < \theta < \theta_
 \item Make a MEDS file and run on it!
 \end{itemize}
 
-\section{\mcal\ Response for Stars}
+\section{\Mcal\ Response for Stars}
 
 Testing to see if we can cause positive responses for stars in a simulation.
 In some scenarios we see $<R> \sim 0.25$ in real data.
@@ -303,7 +304,7 @@ is nearly gaussian, whereas in real data it tends to be highly asymmetric,
 with mode at $R \sim 0.5$.
 
 
-\begin{figure}[h]
+\begin{figure}[p]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/test_psf_var-000-R11.pdf}
 
@@ -315,7 +316,7 @@ with mode at $R \sim 0.5$.
 	\label{fig:Rstarfm}
 
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[p]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/test_psf_var-000-R11-admom.pdf}
 
