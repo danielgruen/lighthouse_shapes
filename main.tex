@@ -141,6 +141,130 @@ The two components missing for this are
 
 \FIXME{Joe, Mike, Erin, Troxel, Gary, Daniel, Niall, Ami, Katie: describe}
 
+\subsection{Goals}
+Goals: Simulation engines primarily for validation. Win some Gin from Catherine Heymans.
+
+The subsections below describe stages of this process and the options or considerations for it.
+
+\subsection{Input Catalogues}
+\end{itemize}
+\begin{itemize}
+\item Actual galaxy population is a no - has been shown to be problematic
+\item Start from N-body Simulation - positions, galaxy types
+\item Need a module for mapping from BCC.  Drawn image.  Colour and size, halo, environment.
+	Recipe from BCC outputs to galaxy appearance.
+	Simple for DES, complicated for LSST.
+	Have SEDs.
+\item Morphology, Bulge + Disc!, COSMOS real galaxies? + Lanusse method. Compromises?
+\item Need to convert this to an image in a given band
+\item Need to save shears for possible use later.
+\item Needs to go to high enough redshift and depth for deep fields
+\end{itemize}
+
+\subsection{Shear Field}
+
+\begin{itemize}
+\item From saved N-body results (see above)
+\item Constant or distributions across image
+\end{itemize}
+
+\subsection{Survey Details}
+
+\begin{itemize}
+\item Real data pointings
+\item Exposure times - from real survey
+\item Noise levels - from real survey
+\item Sky background - from real survey
+\item Deep data - Same process but with more exposures
+\end{itemize}
+
+
+\subsection{True Astrometry}
+
+\begin{itemize}
+\item Flat WCS
+\item Real image WCS
+\item Gary's WCS
+\item FITS header WCS
+\item One of the above + some error distribution
+\end{itemize}
+
+\subsection{True PSF}
+
+\begin{itemize}
+\item Estimated real ones from Piff
+\item Additional complexity, adding variation on smaller scales than 
+\item Fixed values
+\item Colour-dependence of PSF.
+	  Full implementation 100 times slower.
+	  Could make it a function of a single colour parameter, linearly interpolated.
+	  Effective PSF from real SED? Function of (g-i).
+	  Intra-band resolution of PSF.  Do this at n wavelengths.
+	  Like using a chunky SED.
+\end{itemize}
+
+\subsection{Star Catalogue}
+
+\begin{itemize}
+\item Gaia?
+\item Randomly, function of latitude.
+\item SEDs - some in galsim already, need more?
+\end{itemize}
+
+\subsection{Artifacts}
+\begin{itemize}
+\item Tape bumps
+\item CTI
+\item Brighter-fatter
+\item Non-linearity
+\item Non-convolutional things
+\item Image artifacts
+\end{itemize}
+
+\subsection{Masking}
+
+\begin{itemize}
+\item Real
+\item Real + artifacts
+\end{itemize}
+
+\subsection{Single-epoch Rendering}
+
+\begin{itemize}
+\item GalSim
+\end{itemize}
+
+\subsection{Detection \& Segmenting}
+\begin{itemize}
+\item Needed for lists of detected objects and segmentation masks
+\item Generate object list and seg map from truth catalogs
+\item Real pipeline
+\end{itemize}
+
+\subsection{Estimated PSF}
+\begin{itemize}
+\item Run PIFF
+\item Use truth
+\end{itemize}
+
+\subsection{Estimated astrometry}
+\begin{itemize}
+\item Cannot re-do the actual astrometry process
+\item Use the original FITS ones
+\item Use truth + some error term
+\end{itemize}
+
+\subsection{Photometric Calibration}
+\begin{itemize}
+\item Could place a small error on the truth - scale objects by some factor.
+\end{itemize}
+
+\subsection{MEDS}
+\begin{itemize}
+\item Make a MEDS file and run on it!
+\end{itemize}
+
+
 % ----------------------------------------------------------------------
 
 \subsection*{Acknowledgments}
