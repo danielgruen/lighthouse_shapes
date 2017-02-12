@@ -48,7 +48,7 @@ tarfiles=$(figures) $(tables) $(styles) $(bibs) $(source)
 # notebook and make PDF from the output, but this has not been
 # implemented yet.
 all: export flag=\def\flag{$(default)}
-all: main copy
+all: apj copy
 
 copy:
 	cp ${main}.pdf ${outname}.pdf
