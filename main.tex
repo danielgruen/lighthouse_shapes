@@ -155,7 +155,7 @@ The subsections below describe stages of this process and the options or conside
 
 It's important to define cosmology-driven requirements for the simulation, as these will set the simulation volume requirements and thus the computing requirements etc.. Particularly important to do this if we e.g. need to find/apply for more computing resources.
 
-I've brain-dumped a few thoughts on a couple of different (but certainly related) approaches we could take to this, (i) how many galaxies/galaxy pairs do we need to test our desired statistcs to a given precision? (ii) How many realisations of our survey do we need test our desired statistics to a given precision? I think the second approach is probably simpler because a simulation of our survey will automatically (of course limited by the simulation realism) have distributions of certain relevant survey properties (e.g. noise, PSF) that match the real data. 
+I've brain-dumped a few thoughts on a couple of different (but certainly related) approaches we could take to this, (i) how many galaxies/galaxy pairs do we need to test our desired statistics to a given precision? (ii) How many realisations of our survey do we need test our desired statistics to a given precision? I think the second approach is probably simpler because a simulation of our survey will automatically (of course limited by the simulation realism) have distributions of certain relevant survey properties (e.g. noise, PSF) that match the real data. 
 
 We want to demonstrate that our shear estimation pipelines can recover unbiased shear-shear and tangential shear signals to better than $X_i\%$, $Y_i\%$  for in $n_z$ redshift bins, $i$, for $0<z<z_{\mathrm{max}}$ for some range of scales $\theta_{\mathrm{min}} < \theta < \theta_{\mathrm{max}}$ (we could also phrase in terms of $l$ and $C_l$. This requires:
 \begin{align}
@@ -173,39 +173,54 @@ where the (possibly weighed) averaging is over all galaxies in redshift bin $i$.
 \end{equation}
 We want e.g. $\sigma_{m_i} < 0.5 X_i\%$, so e.g. for $X_i = 1\%$, $\gamma_{\mathrm{true}}=0.01$, $\sigma_e = 0.2$, we'd need to simulate $1.6\times10^7$ galaxies per redshift bin.
 
-So what if we are worried about scale dependence (why would we be? blending, spatially varying observing conditions?). Well then we can write some requriements for the number of simulated pairs which populate a given angular bin etc....
+Are we worried about scale dependence? For shear-shear, we get selection biases due to blending (blended galaxies are more likely to be in high galaxy number density, high convergence regions \citep{hartlap2011,maccrann2017}). Spatial correlations in observing conditions may produce spatial correlations in the shear biases. For tangential shear, increased crowding closer to clusters/lens galaxies will produce scale dependent shear biases \citep{melchior2015,simet2015}.
 
-An alternative way to think about the requriements is to first assume that we want to simulated $N_{\mathrm{sim}}$ copies of our survey ($N_{\mathrm{sim}}$ could, but probably wouldn't be less than 1). This approach has the advantage that (to the extent that the simulated survey properties are realistic), the simulated survey properties (e.g. noise, PSF etc.) will have the same distributions as the data. If we want to know the accuracy to which our pipeline recovers some statistic  to better than a fraction $f$ of the shape noise errors on that statistic we have in the real data, then we require $N_{\mathrm{sim}} = 1/f^2$ realisations of our data. 
+An alternative way to think about the requirements is to first assume that we want to simulated $N_{\mathrm{sim}}$ copies of our survey ($N_{\mathrm{sim}}$ could, but probably wouldn't be less than 1). This approach has the advantage that (to the extent that the simulated survey properties are realistic), the simulated survey properties (e.g. noise, PSF etc.) will have the same distributions as the data. If we want to know the accuracy to which our pipeline recovers some statistic  to better than a fraction $f$ of the shape noise errors on that statistic we have in the real data, then we require $N_{\mathrm{sim}} = 1/f^2$ realisations of our data. 
 
 Discussion points:
 \begin{itemize}
-\item{What should $f$ be? Note that most of the statistics we use are cosmic variance limitied on large scales, so beating down the shape noise may not be so relevant. We will know the `cosmic variance' (or rather we'll know the particular realisation of the cosmological signal) in the simulation.}
-\item{How can we reduce $N_{\mathrm{sim}}$? Boost the shear signal - the stronger the simulate signal, the better fractional accuracy can be achieved? How about ring-test type tricks to reduce shape noise? Ideas for this may be needed to make this computationally feasible.}
+\item{What should $f$ be? Note that most of the statistics we use are cosmic variance limited on large scales, so beating down the shape noise may not be so relevant. We will know the `cosmic variance' (or rather we'll know the particular realisation of the cosmological signal) in the simulation.}
+\item{How can we reduce $N_{\mathrm{sim}}$? Boost the shear signal - the stronger the simulate signal, the better fractional accuracy can be achieved. However, concerns exist about higher order shear biases, and breaking the relations between galaxy number density and shear. For postage-stamp styles simulations, presumable we can use ring-test type tricks to reduce shape noise. Is there something similar we can use for the detection simulation?}
 \item{What kind of shear fields should we use? If we use something realistic (e.g. from ray-tracing), how do we test that we're recovering it correctly, given that a given method will only use a subset of the galaxies...}
 \end{itemize}
+
+We envisage two main modes of the image simulations. 
+\begin{enumerate}
+\item \emph{Tide-pool} Fast, straight to postage-stamps simulations where different marine organisms (e.g. complex morphology, PSF model errors) are turned on and off. Galaxies written straight to MEDS files, or are generated on-the-fly. No neighbours.
+\item \emph{Pacific} Full single-epoch survey images are rendered. Coadd images are produced for detection/deblending. PSF estimation is performed on the SE images. MEDS files produced using SE images and coadd information. Some shortcuts probably needed!
+\end{enumerate}
+
+Three main initial tasks:
+\begin{enumerate}
+\item{Finish writing up this plan (NM+)}
+\item{Design and write simulation software framework (JZ+)}
+\item{Design and write input galaxy catalog 
+$->$ galaxy appearance module}
+\item{Estimate timings + memory usage for simulation steps. Could split this into several tasks e.g. image rendering timing (i.e. mostly GalSim stuff) (MJ+?), coadding+detection (i.e. SWARP + SExtractor) timing.}
+\item{Estimate computing requirements for various sims modes.}
+\end{enumerate}
 
 \subsection{Required Ingredients}
 
 \subsubsection{Input Catalogues}
 
+Requirement: Galaxy sample with physically sensible clustering, redshift evolution, morphologies, colours, and correlations between the above. Sufficiently complex morphologies to test model bias, and sensible variation in morphology between filters. 
+
 \begin{itemize}
-\item Actual galaxy population is a no - has been shown to be problematic
-\item Start from N-body Simulation - positions, galaxy types
-\item Need a module for mapping from BCC.  Drawn image.  Colour and size, halo, environment.
-	Recipe from BCC outputs to galaxy appearance.
-	Simple for DES, complicated for LSST.
-	Have SEDs.
-\item Morphology, Bulge + Disc!, COSMOS real galaxies? + Lanusse method. Compromises?
-\item Need to convert this to an image in a given band
-\item Need to save shears for possible use later.
-\item Needs to go to high enough redshift and depth for deep fields
+\item Starting from an observed catalog is problematic: measured quantities get noisy at the faint end, we won't get sub-detection objects.
+\item Proposal: Start from N-body + galaxy simulation e.g. BCC.
+\item Map simulation outputs (e.g. color, size) to image properties in each filter (e.g. bulge/disc, size, amount of star formation knots). Look into Lanusse method.
+\item Needs to go to high enough redshift and depth for deep fields (and for sufficient sub-detection objects in wide-field).
 \end{itemize}
 
 \subsubsection{Shear Field}
 
+The following options, probably we'll want to do one of the first two for the Pacific simulation. Other options fine for tide-pool simulation. 
 \begin{itemize}
 \item From saved N-body results (see above)
-\item Constant or distributions across image
+\item Spatially varying but without evolution within a redshift bin
+\item Spatially varying but without redshift evolution
+\item Constant
 \end{itemize}
 
 \subsubsection{Survey Details}
@@ -289,9 +304,7 @@ Discussion points:
 
 \subsubsection{Estimated PSF}
 \begin{itemize}
-
 \item Find starting stars - on coadd using SExtractor? Can we do this without spread-model?
-
 \item Run PIFF
 \item Use truth
 \end{itemize}
@@ -312,6 +325,8 @@ Discussion points:
 \begin{itemize}
 \item Make a MEDS file and run on it!
 \end{itemize}
+
+
 
 \section{\Mcal\ Response for Stars}
 
