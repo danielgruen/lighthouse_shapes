@@ -146,7 +146,7 @@ Goals: Simulation engines primarily for validation. Win some Gin from Catherine 
 
 The subsections below describe stages of this process and the options or considerations for it.
 
-\subsection{Requirements}
+\subsection{(Statistical) Requirements}
 
 It's important to define cosmology-driven requirements for the simulation, as these will set the simulation volume requirements and thus the computing requirements etc.. Particularly important to do this if we e.g. need to find/apply for more computing resources.
 
@@ -179,7 +179,9 @@ Discussion points:
 \item{What kind of shear fields should we use? If we use something realistic (e.g. from ray-tracing), how do we test that we're recovering it correctly, given that a given method will only use a subset of the galaxies...}
 \end{itemize}
 
-\subsection{Input Catalogues}
+\subsection{Required Ingredients}
+
+\subsubsection{Input Catalogues}
 
 \begin{itemize}
 \item Actual galaxy population is a no - has been shown to be problematic
@@ -194,14 +196,14 @@ Discussion points:
 \item Needs to go to high enough redshift and depth for deep fields
 \end{itemize}
 
-\subsection{Shear Field}
+\subsubsection{Shear Field}
 
 \begin{itemize}
 \item From saved N-body results (see above)
 \item Constant or distributions across image
 \end{itemize}
 
-\subsection{Survey Details}
+\subsubsection{Survey Details}
 
 \begin{itemize}
 \item Real data pointings
@@ -212,7 +214,7 @@ Discussion points:
 \end{itemize}
 
 
-\subsection{True Astrometry}
+\subsubsection{True Astrometry}
 
 \begin{itemize}
 \item Flat WCS
@@ -222,7 +224,7 @@ Discussion points:
 \item One of the above + some error distribution
 \end{itemize}
 
-\subsection{True PSF}
+\subsubsection{True PSF}
 
 \begin{itemize}
 \item Estimated real ones from Piff
@@ -236,7 +238,7 @@ Discussion points:
 	  Like using a chunky SED.
 \end{itemize}
 
-\subsection{Star Catalogue}
+\subsubsection{Star Catalogue}
 
 \begin{itemize}
 \item Gaia?
@@ -244,7 +246,7 @@ Discussion points:
 \item SEDs - some in galsim already, need more?
 \end{itemize}
 
-\subsection{Artifacts}
+\subsubsection{Artifacts}
 \begin{itemize}
 \item Tape bumps
 \item CTI
@@ -254,33 +256,33 @@ Discussion points:
 \item Image artifacts
 \end{itemize}
 
-\subsection{Masking}
+\subsubsection{Masking}
 
 \begin{itemize}
 \item Real
 \item Real + artifacts
 \end{itemize}
 
-\subsection{Single-epoch Rendering}
+\subsubsection{Single-epoch Rendering}
 
 \begin{itemize}
 \item GalSim
 \end{itemize}
 
-\subsection{Coadding}
+\subsubsection{Coadding}
 \begin{itemize}
 \item Run full pipeline - i.e. run swarp
 \item Shortcut option: draw coadd directly. What does this miss? What is required to test this?
 \end{itemize}
 
-\subsection{Detection \& Segmenting}
+\subsubsection{Detection \& Segmenting}
 \begin{itemize}
 \item Needed for lists of detected objects and segmentation masks
 \item Run full pipeline - SExtractor on coadd
 \item Generate object list and seg map from truth catalogs
 \end{itemize}
 
-\subsection{Estimated PSF}
+\subsubsection{Estimated PSF}
 \begin{itemize}
 
 \item Find starting stars - on coadd using SExtractor? Can we do this without spread-model?
@@ -289,19 +291,19 @@ Discussion points:
 \item Use truth
 \end{itemize}
 
-\subsection{Estimated astrometry}
+\subsubsection{Estimated astrometry}
 \begin{itemize}
 \item Cannot re-do the actual astrometry process
 \item Use the original FITS ones
 \item Use truth + some error term
 \end{itemize}
 
-\subsection{Photometric Calibration}
+\subsubsection{Photometric Calibration}
 \begin{itemize}
 \item Could place a small error on the truth - scale objects by some factor.
 \end{itemize}
 
-\subsection{MEDS}
+\subsubsection{MEDS}
 \begin{itemize}
 \item Make a MEDS file and run on it!
 \end{itemize}
