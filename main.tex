@@ -21,6 +21,10 @@
 
 % Add your own macros here:
 
+\newcommand{\mcal}{\textsc{metacalibration}}
+\newcommand{\snr}{S/N}
+
+
 % 
 % ======================================================================
 
@@ -281,6 +285,46 @@ mathrm{max}}$ for some range of scales $\theta_{\mathrm{min}} < \theta < \theta_
 \begin{itemize}
 \item Make a MEDS file and run on it!
 \end{itemize}
+
+\section{\mcal\ Response for Stars}
+
+Testing to see if we can cause positive responses for stars in a simulation.
+In some scenarios we see $<R> \sim 0.25$ in real data.
+
+\subsection{Variations in PSF}
+
+Consider the case where the PSF model used is accurate in the mean but 
+for an individual galaxy the truth varies significantly.  The response
+for stars at high \snr ($> 100$), and using forward modeling, is shown in
+figure \ref{fig:Rstarfm}.  The same for adaptive moments, without
+PSF correction. The response has mean about 0.1 for forward modeling,
+but nearly zero for adaptive moments.  In both cases the distribution
+is nearly gaussian, whereas in real data it tends to be highly asymmetric,
+with mode at $R \sim 0.5$.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/test_psf_var-000-R11.pdf}
+
+    \caption{Response for high \snr\ stars when varying the PSF from
+    object to object, but using
+    the mean model when performing \mcal\ operatioins, using the forward modeling estimator.
+    Parameters of the best fit gaussian are shown. }
+
+	\label{fig:Rstarfm}
+
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/test_psf_var-000-R11-admom.pdf}
+
+    \caption{Same as figure \ref{fig:Rstarfm}, but adaptive moments estimator with no PSF correction}
+
+	\label{fig:Rstaram}
+
+\end{figure}
+
 
 
 % ----------------------------------------------------------------------
