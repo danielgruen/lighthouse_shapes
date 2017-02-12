@@ -146,6 +146,10 @@ Goals: Simulation engines primarily for validation. Win some Gin from Catherine 
 
 The subsections below describe stages of this process and the options or considerations for it.
 
+\subsection{Requirements}
+
+We want to demonstrate that our shear estimation pipelines can recover the input shear field.
+
 \subsection{Input Catalogues}
 \end{itemize}
 \begin{itemize}
@@ -234,15 +238,22 @@ The subsections below describe stages of this process and the options or conside
 \item GalSim
 \end{itemize}
 
+\subsection{Coadding}
+\begin{itemize}
+\item{Run full pipeline - i.e. run swarp}
+\item{Shortcut option: draw coadd directly. What does this miss? What is required to test this?}
+\end{itemize}
+
 \subsection{Detection \& Segmenting}
 \begin{itemize}
 \item Needed for lists of detected objects and segmentation masks
+\item{Run full pipeline - SExtractor on coadd}
 \item Generate object list and seg map from truth catalogs
-\item Real pipeline
 \end{itemize}
 
 \subsection{Estimated PSF}
 \begin{itemize}
+\item Find starting stars - on coadd using SExtractor? Can we do this without spread_model?
 \item Run PIFF
 \item Use truth
 \end{itemize}
