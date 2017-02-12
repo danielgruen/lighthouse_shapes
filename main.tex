@@ -240,20 +240,20 @@ We want to demonstrate that our shear estimation pipelines can recover the input
 
 \subsection{Coadding}
 \begin{itemize}
-\item{Run full pipeline - i.e. run swarp}
-\item{Shortcut option: draw coadd directly. What does this miss? What is required to test this?}
+\item Run full pipeline - i.e. run swarp
+\item Shortcut option: draw coadd directly. What does this miss? What is required to test this?
 \end{itemize}
 
 \subsection{Detection \& Segmenting}
 \begin{itemize}
 \item Needed for lists of detected objects and segmentation masks
-\item{Run full pipeline - SExtractor on coadd}
+\item Run full pipeline - SExtractor on coadd
 \item Generate object list and seg map from truth catalogs
 \end{itemize}
 
 \subsection{Estimated PSF}
 \begin{itemize}
-\item Find starting stars - on coadd using SExtractor? Can we do this without spread_model?
+\item Find starting stars - on coadd using SExtractor? Can we do this without spread-model?
 \item Run PIFF
 \item Use truth
 \end{itemize}
