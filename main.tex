@@ -141,6 +141,13 @@ To test this calculation, we used an ensemble of simulated stars, constructed wi
 \caption{The pull distributions for $e_0$, $e_1$ and $e_2$ from a sample of simulated stars with $S/N = 316$. The errors are underestimated by a factor which is independent of S/N. \label{fig:momerror}}
 \end{figure}
 
+\subsection{Combining PSF Models}
+
+A goal with PIFF is to model the PSF as a combination of the optical and atmospheric PSFs.
+Because these two PSFs have significant differences in implementation, they need to be combined together within PIFF.
+Chris wrote a new \texttt{PSF} class, \texttt{CompoundPSF}, while at the lighthouse.
+This class can take an arbitrary number of PSFs, and fits each piece iteratively.
+The final PSF is a convolution of the PSFs.
 
 \section{Shape measurement}
 
