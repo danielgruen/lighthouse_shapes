@@ -253,7 +253,7 @@ Discussion points:
 \item{What kind of shear fields should we use? If we use something realistic (e.g. from ray-tracing), how do we test that we're recovering it correctly, given that a given method will only use a subset of the galaxies...}
 \end{itemize}
 
-We envisage two main modes of the image simulations. 
+We envisage two main modes of the image simulations. See Figure \ref{figure: flowchart} for schematics.
 \begin{enumerate}
 \item \emph{Tide-pool} Fast, straight to postage-stamps simulations where different marine organisms (e.g. complex morphology, PSF model errors) are turned on and off. Galaxies written straight to MEDS files, or are generated on-the-fly. No neighbours.
 \item \emph{Pacific} Full single-epoch survey images are rendered. Coadd images are produced for detection/deblending. PSF estimation is performed on the SE images. MEDS files produced using SE images and coadd information. Some shortcuts probably needed!
@@ -268,6 +268,14 @@ $->$ galaxy appearance module}
 \item{Estimate timings + memory usage for simulation steps. Could split this into several tasks e.g. image rendering timing (i.e. mostly GalSim stuff) (MJ+?), coadding+detection (i.e. SWARP + SExtractor) timing.}
 \item{Estimate computing requirements for various sims modes.}
 \end{enumerate}
+
+
+
+\begin{figure}[h]
+\includegraphics[width=0.9\columnwidth]{figures/flowchart.pdf}
+\caption{Flowcharts of the \emph{Tide-pool} and \emph{Pacific} scenarios for the image simulations.}
+\label{figure: flowchart}
+\end{figure}
 
 \subsection{Required Ingredients}
 
