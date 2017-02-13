@@ -125,6 +125,23 @@ The \textsc{meds} python class would allow for flexibly swapping out the WCS in 
 
 \FIXME{Josh, Gary, Mike, Niall, Pierre-Francois, Ami: describe}
 
+\subsection{Errors on Adaptive Moments}
+
+The wavefront-based PSF performs a $\chi^2$ fit to the adaptive moments of stars.  However, up to now we have not included an error on the adaptive moments in the fit.  We calculated the errors on the adaptive moments, using the following expressions from simple error propagation:
+$$  \sigma^2(e_0) = \sum \left\{ \left[ (u-u_0)^2 + (v-v_0)^2  \right] K(u,v) \right\}^2 \sigma_{I}^2(u,v) $$
+$$  \sigma^2(e_1) = \sum \left\{ \left[ (u-u_0)^2 - (v-v_0)^2  \right] K(u,v) \right\}^2 \sigma_{I}^2(u,v) $$
+$$  \sigma^2(e_2) = \sum \left\{ \left[ (u-u_0)  (v-v_0)  \right] K(u,v) \right\}^2 \sigma_{I}^2(u,v) $$
+where $\sigma_{I}(u,v)$ is the shot noise on an individual pixel and $K(u,v)$ is the kernel used by the HSM algorithm. Note that we have not yet included a contribution from the error on the centroids, nor from the (omitted) normalization term. 
+
+To test this calculation, we used an ensemble of simulated stars, constructed with arbitrary aberration, and with shot noise appropriate for different choices of star S/N. For a stellar flux of $10^5$ photo-electrons, we created 5000 noisy stars, calculated their adaptive moments and errors, and plot the pull distribution for $e_0$, $e_1$ and $e_2$ (note that our $e_1$ and $e_2$ are unnormalized) in Figure~\ref{fig:momerror}.  The pull distributions have RMS  somewhat larger than 1., and we find very similar RMS values independent of flux for values from $10^6$ down to $4\times10^3$.  We suspect that the errors are underestimated because we omit the contribution to the error from the uncertainty in the centroids and the normalization.  
+
+
+\begin{figure}[h]
+\includegraphics[width=0.9\columnwidth]{moment-errors-flux1e5.png}
+\caption{The pull distributions for $e_0$, $e_1$ and $e_2$ from a sample of simulated stars with $S/N = 316$. The errors are underestimated by a factor which is independent of S/N. \label{fig:momerror}}
+\end{figure}
+
+
 \section{Shape measurement}
 
 \FIXME{quick intro of lessons learned from DES Y1}
