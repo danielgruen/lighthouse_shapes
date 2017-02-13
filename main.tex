@@ -14,7 +14,7 @@
 
 % Custom commands from LSST DESC, see texmf/styles/lsstdesc_macros.sty
 \usepackage{lsstdesc_macros}
-
+\usepackage{hyperref}
 \usepackage{graphicx}
 \graphicspath{{./}{./figures/}}
 \bibliographystyle{apj}
@@ -111,9 +111,42 @@ Each line must ``compile'' in the mind of the reader.
 The \textsc{meds} python class would allow for flexibly swapping out the WCS in the input file FITS header by something more elaborate if we have the base class provide access functions for the \texttt{cutout\_row/col} variables (in addition to the Jacobian) \FIXME{(Erin)}. A derived class could then implement these differently, e.g. by evaluating Gary's WCS \FIXME{(Gary)}. Both this and the way shape measurement codes find the matching PSFEx model files could be implemented by an external simple table that maps exposure and CCD IDs to auxiliary filenames.
 
 
-\subsection{A MEDS API for LSST}
+\subsection{A MEDS-Like API for LSST}
 
-\FIXME{Jim, Erin, Joe, Josh, Daniel: describe how this is implemented; it seems like an API that generates an object's MEDS information on the fly could be feasible}
+MEDS has been an overwhelmingly successful approach for providing data to multple multi-epoch object characterization algorithms in DES, but it makes some assumptions that will make it impossible to use directly in LSST.  But the MEDS experience is something LSST must learn from -- multi-epoch fitting is a sufficiently complex task that we will not have the luxury of building a throw-away prototype to learn from before we build the final production system for LSST.  From the LSST perspective, MEDS \emph{is} that prototype, and collaboration with DES represents our best opportunity for learning from it in a production environment.
+
+To that end, we have sketched out a design for a set of interfaces that generalize the MEDS approach to meet the needs of LSST.  We're provisionally calling it \texttt{umemofi}: the Unified Multi-Exposure Multi-Object Fitting Interface.  The design sketch can currently be found at \url{https://github.com/TallJimbo/umemofi}.\footnote{None of this is working code yet, and its home may change in the future.}  The goals of the new interface include:
+\begin{itemize}
+\item We need to separate the programmatic interface to data structures from their serialization and file formats, enabling drivers that repackage information from CCD-level images on the fly and serialize using LSST DM's ``data butler'' abstraction layer.
+\item We need to fully define all interfaces and data structures needed for fitting, instead of leaving some of them to be algorithm- or context-dependent.
+\item We need to support algorithms that simultaneously fit multiple objects.
+\item We need to run multiple algorithms in a single processing run, without duplicate I/O.
+\item We need to allow an external workflow system to control the highest levels of parallelization and data flow.
+\end{itemize}
+It is also a requirement that it be possible to implement at least the current MEDS \emph{fitting} workflow on top of the new interface.  We may or may not be able to implement the current MEDS \emph{generation} workflow exactly using the new interface (but we hope to make it possible to implement something no worse, even if the logic isn't quite the same).
+
+The design centers around the following classes:
+\begin{itemize}
+\item \texttt{ObjectData} and {{MultiObjectData}} contain the revelent information from one or more (respectively) astronomical objects, independent of any observations they appear in: their location on the sky, and the results of any measurement algorithms that do not generate per-exposure output quantities.
+\item \texttt{Model} abstracts the per-object results of running a fitter or other measurement algorithm, including algorithm-independent serialization of those results and rendering them to images for diagnostic purposes and deblending (by subtracting neighbors).
+\item \texttt{Observation} holds all information needed to measure a single object on a single exposure, and \texttt{ObservationMeta} provides an interface for backend-implemented lightweight handles that can load this information on-demand.  \texttt{MultiObjectObservation} and \texttt{MultiObjectObservationMeta} generalize these for algorithms that wish to fit objects simultaneously.  These classes also hold \texttt{Model} objects that represent per-exposure results, such as forced photometry.
+\item \texttt{ObjectObservationDict} and \texttt{MultiObjectObservationDict} are containers of \texttt{ObservationMeta}, indexed by different combinations of object and exposure IDs.
+\end{itemize}
+These in turn rely on a number of primitive classes for representing key image processing concepts:
+\begin{itemize}
+\item images: conceptually a 2-d array with a potentially nonzero origin
+\item masks: integer images where each bit is assigned a different meaning
+\item \emph{local} coordinate system transformations (which we approximate as locally affine over the scale of an object)
+\item \emph{local} point-spread functions (which we approximate as spatially constant over the scale of an object, but potentially a function of wavelength)
+\item \emph{local} photometric transmission functions (which we also approximate as spatially constant over the scale of an object, and a function of wavelength).
+\end{itemize}
+The local approximations are critical here: they let us avoid including the complex spatial variations of these objects in this interface.  These local approximations must be generated from their complete spatially-varying forms by any \texttt{umemofi}backend, but those more complex objects remain completely hidden behind the backend.
+
+\FIXME{Jim: \texttt{Algorithm} and harness interfaces (the end-game for all of this) still need some fleshing out; do that in Python before trying to describe it here.}
+
+We are also working to make this an active collaboration between DES and LSST, and in particular make sure there are no blockers on eventual DES adoption of \texttt{umemofi} as the primary interface for DES multi-epoch measurement (though we do not expect that to happen soon).  While we expect both projects will always utilize different backends, reflecting different pipelines for earlier stages of processing, this should allow them to share the most important algorithmic code.  This is a huge win for LSST (and DES members who are also LSST members), as it would allow DES-developed state-of-the-art model-fitting codes to be run on LSST DM stack outputs.  It will hopefully also be advantageous for DES, as the new interface should make it easier to reconfigure and test algorithms (especially for dealing with blending), and it should consolidate much of the bookkeeping logic currently scattered across algorithms into a common harness.  To encourage that cross-project collaboration, we intend to minimize the dependencies of the \texttt{umemofi} library itself, even if that involves duplicating in it some primitives LSST has already implemented in its own codebase.  But even this can be seen as an opportunity for LSST: a way to get a small amount of important, high-use, stable LSST DM code (largely from \texttt{afw.geom}) into a separate library that will be more Pythonic and easier to install.  Given that these geometry primives would require work (largely to integrate them with LSST's own \texttt{sphgeom} package, as has long been planned) to meet \texttt{umemofi}'s needs, doing this work in a ``spin-off'' package should involve little or no additional effot.
+
+Our first near-term goals is to finish implementing the utility classes that form the core of the interface, at least in Python.  LSST will ultimately want many of these classes to be available in C++, and it may make sense to implement these in C++ initially (especially if this largely transferring code from \texttt{afw} and adapting it slightly).  We expect that DES will only use the Python interfaces for the forseeable future -- while DES codes will of course use C or C++ in inner loops, we are confident the \texttt{umemofi} interfaces will never need to be used in those inner loops (the LSST desire for these utility objects in C++ is about design philosophy, not performance requirements).  At the same time, we hope to start working on a MEDS backend that allows \texttt{Observation} objects to be loaded from DES-generated MEDS files using the \texttt{umemofi} interface.  From there it should be easy to adapt any MEDS-based fitter into an \texttt{umemofi} \texttt{Algorithm}, allowing those codes to be run via \texttt{umemofi} on MEDS files in more flexible ways.  A minimal LSST backend for \texttt{umemofi} with only simple intra-node parallelization and naive I/O should also be relatively easy to develop, which will enable algorithm development work to proceed while a more scaleable production backend is developed.
 
 % ----------------------------------------------------------------------
 
@@ -125,19 +158,55 @@ The \textsc{meds} python class would allow for flexibly swapping out the WCS in 
 
 \FIXME{Josh, Gary, Mike, Niall, Pierre-Francois, Ami: describe}
 
+\subsection{Errors on Adaptive Moments}
+
+The wavefront-based PSF performs a $\chi^2$ fit to the adaptive moments of stars.  However, up to now we have not included an error on the adaptive moments in the fit.  We calculated the errors on the adaptive moments, using the following expressions from simple error propagation:
+$$  \sigma^2(e_0) = \sum \left\{ \left[ (u-u_0)^2 + (v-v_0)^2  \right] K(u,v) \right\}^2 \sigma_{I}^2(u,v) $$
+$$  \sigma^2(e_1) = \sum \left\{ \left[ (u-u_0)^2 - (v-v_0)^2  \right] K(u,v) \right\}^2 \sigma_{I}^2(u,v) $$
+$$  \sigma^2(e_2) = \sum \left\{ \left[ (u-u_0)  (v-v_0)  \right] K(u,v) \right\}^2 \sigma_{I}^2(u,v) $$
+where $\sigma_{I}(u,v)$ is the shot noise on an individual pixel and $K(u,v)$ is the kernel used by the HSM algorithm. Note that we have not yet included a contribution from the error on the centroids, nor from the (omitted) normalization term. 
+
+To test this calculation, we used an ensemble of simulated stars, constructed with arbitrary aberration, and with shot noise appropriate for different choices of star S/N. For a stellar flux of $10^5$ photo-electrons, we created 5000 noisy stars, calculated their adaptive moments and errors, and plot the pull distribution for $e_0$, $e_1$ and $e_2$ (note that our $e_1$ and $e_2$ are unnormalized) in Figure~\ref{fig:momerror}.  The pull distributions have RMS  somewhat larger than 1., and we find very similar RMS values independent of flux for values from $10^6$ down to $4\times10^3$.  We suspect that the errors are underestimated because we omit the contribution to the error from the uncertainty in the centroids and the normalization.  
+
+
+\begin{figure}[h]
+\includegraphics[width=0.9\columnwidth]{figures/moment-errors-flux1e5.png}
+\caption{The pull distributions for $e_0$, $e_1$ and $e_2$ from a sample of simulated stars with $S/N = 316$. The errors are underestimated by a factor which is independent of S/N. \label{fig:momerror}}
+\end{figure}
+
+\subsection{Combining PSF Models}
+
+A goal with PIFF is to model the PSF as a combination of the optical and atmospheric PSFs.
+Because these two PSFs have significant differences in implementation, they need to be combined together within PIFF.
+Chris wrote a new \texttt{PSF} class, \texttt{CompoundPSF}, while at the lighthouse.
+This class can take an arbitrary number of PSFs, and fits each piece iteratively.
+The final PSF is a convolution of the PSFs.
+
 \section{Shape measurement}
 
 \FIXME{quick intro of lessons learned from DES Y1}
 
 \subsection{BFD on real data}
 
-\FIXME{Gary, Daniel, Joe, Katie, Ami: describe}
+The BFD approach to galaxy shape measurement, described in \citet{2014MNRAS.438.1880B} and implemented in \citet{2016MNRAS.459.4467B},  uses a collection of moment templates derived from deep data to generate a posterior for galaxy shapes in shallow data.
 
-The two components missing for this are
+We have made progress connecting the BFD code to the MEDS format used in DES and LSST.
+
+The two components missing for this were
 \begin{itemize}
 \item a variant of \texttt{simpleImage} (see \texttt{momentcalc.py} in the BFD repository) that can take multiple postage stamps of the same galaxies with their respective WCS registrations (in the form of the position of a centroid estimated in WCS and transformed to the postage stamp pixel system) and Jacobians, PSF models, and an estimate of the overall centroid in WCS \FIXME{(Katie)}
 \item a function that can get these inputs to the new variant of \texttt{simpleImage} from a MEDS file (using the python \texttt{meds} or a derived class) \FIXME{(Daniel)}
 \end{itemize}
+
+A git repository was created at \url{https://github.com/danielgruen/bfdmeds} containing code to use the MEDS library to provide the input PSF information needed by BFD, and to wrap the existing MEDS objects with the new astrometric information provided by the improved WCS measurement process and stored in YAML files.  The library was used with DES Y3 meds files to produce the PSF image below.
+
+
+\begin{figure}[h]
+\includegraphics[width=0.9\columnwidth]{figures/psf-example.png}
+\caption{A PSF image generated from DES Y3 PSFEx models from the new bfdmeds repository.}
+\end{figure}
+
+
 
 
 % ----------------------------------------------------------------------
