@@ -137,7 +137,7 @@ To test this calculation, we used an ensemble of simulated stars, constructed wi
 
 
 \begin{figure}[h]
-\includegraphics[width=0.9\columnwidth]{moment-errors-flux1e5.png}
+\includegraphics[width=0.9\columnwidth]{figures/moment-errors-flux1e5.png}
 \caption{The pull distributions for $e_0$, $e_1$ and $e_2$ from a sample of simulated stars with $S/N = 316$. The errors are underestimated by a factor which is independent of S/N. \label{fig:momerror}}
 \end{figure}
 
@@ -155,13 +155,25 @@ The final PSF is a convolution of the PSFs.
 
 \subsection{BFD on real data}
 
-\FIXME{Gary, Daniel, Joe, Katie, Ami: describe}
+The BFD approach to galaxy shape measurement, described in \citet{2014MNRAS.438.1880B} and implemented in \citet{2016MNRAS.459.4467B},  uses a collection of moment templates derived from deep data to generate a posterior for galaxy shapes in shallow data.
 
-The two components missing for this are
+We have made progress connecting the BFD code to the MEDS format used in DES and LSST.
+
+The two components missing for this were
 \begin{itemize}
 \item a variant of \texttt{simpleImage} (see \texttt{momentcalc.py} in the BFD repository) that can take multiple postage stamps of the same galaxies with their respective WCS registrations (in the form of the position of a centroid estimated in WCS and transformed to the postage stamp pixel system) and Jacobians, PSF models, and an estimate of the overall centroid in WCS \FIXME{(Katie)}
 \item a function that can get these inputs to the new variant of \texttt{simpleImage} from a MEDS file (using the python \texttt{meds} or a derived class) \FIXME{(Daniel)}
 \end{itemize}
+
+A git repository was created at \url{https://github.com/danielgruen/bfdmeds} containing code to use the MEDS library to provide the input PSF information needed by BFD, and to wrap the existing MEDS objects with the new astrometric information provided by the improved WCS measurement process and stored in YAML files.  The library was used with DES Y3 meds files to produce the PSF image below.
+
+
+\begin{figure}[h]
+\includegraphics[width=0.9\columnwidth]{figures/psf-example.png}
+\caption{A PSF image generated from DES Y3 PSFEx models from the new bfdmeds repository.}
+\end{figure}
+
+
 
 
 % ----------------------------------------------------------------------
