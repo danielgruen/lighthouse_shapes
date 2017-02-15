@@ -127,10 +127,10 @@ It is also a requirement that it be possible to implement at least the current M
 
 The design centers around the following classes:
 \begin{itemize}
-\item \texttt{ObjectData} and {{MultiObjectData}} contain the revelent information from one or more (respectively) astronomical objects, independent of any observations they appear in: their location on the sky, and the results of any measurement algorithms that do not generate per-exposure output quantities.
+\item \texttt{ObjectData} and {{BlendData}} contain the revelent information from one or more (respectively) astronomical objects, independent of any observations they appear in: their location on the sky, and the results of any measurement algorithms that do not generate per-exposure output quantities.
 \item \texttt{Model} abstracts the per-object results of running a fitter or other measurement algorithm, including algorithm-independent serialization of those results and rendering them to images for diagnostic purposes and deblending (by subtracting neighbors).
-\item \texttt{Observation} holds all information needed to measure a single object on a single exposure, and \texttt{ObservationMeta} provides an interface for backend-implemented lightweight handles that can load this information on-demand.  \texttt{MultiObjectObservation} and \texttt{MultiObjectObservationMeta} generalize these for algorithms that wish to fit objects simultaneously.  These classes also hold \texttt{Model} objects that represent per-exposure results, such as forced photometry.
-\item \texttt{ObjectObservationDict} and \texttt{MultiObjectObservationDict} are containers of \texttt{ObservationMeta}, indexed by different combinations of object and exposure IDs.
+\item \texttt{ObsData} holds all information needed to measure a single object on a single exposure, and \texttt{ObsRef} provides an interface for backend-implemented lightweight handles that can load this information on-demand.  \texttt{BlendObsData} and \texttt{BlendObsRef} generalize these for algorithms that wish to fit objects simultaneously.  These classes also hold \texttt{Model} objects that represent per-exposure results, such as forced photometry.
+\item \texttt{ObsDataStack}/\texttt{ObsRefStack} and \texttt{BlendObsDataStack}/\texttt{BlendObsRefStack} are containers of \texttt{ObsData}/\texttt{ObsRef}, indexed by different combinations of object and exposure IDs.
 \end{itemize}
 These in turn rely on a number of primitive classes for representing key image processing concepts:
 \begin{itemize}
