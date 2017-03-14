@@ -37,12 +37,12 @@
 
 \begin{abstract}
 
-LSST weak lensing science has unprecedented requirements for the modelling of the LSST point spread function and the accurate measurement of galaxy shapes in the face of blending. In this document, we describe the results of a workshop on these issues held at Point Montara in February 2017. We discuss available solutions for the PSF modelling and shape measurement, lessons learned from their use in the Dark Energy Survey, remaining open issues, and progress and plans towards fixing those. In addition, we lay out a strategy for handling multi-epoch image data in an API useful with present weak lensing image analysis codes and a framework for validating PSF and shape measurement through image simulations.
+LSST weak lensing science has unprecedented requirements for modelling the point spread function and for the accurate measurement of galaxy shapes in the face of blending. In this document, we describe the results of a workshop on these issues held at Point Montara in February 2017. We discuss available solutions for PSF modelling and shape measurement, lessons learned from their use in the Dark Energy Survey, remaining open issues, and progress and plans towards fixing those. In addition, we lay out a strategy for handling multi-epoch image data in an API useful with present weak lensing image analysis codes and a framework for validating PSF and shape measurement through image simulations.
 
 \end{abstract}
 
 % Keywords are ignored in the LSST DESC Note style:
-\dockeys{latex: templates, papers: awesome}
+%\dockeys{latex: templates, papers: awesome}
 
 \maketitlepost
 
@@ -52,51 +52,17 @@ LSST weak lensing science has unprecedented requirements for the modelling of th
 \section{Introduction}
 \label{sec:intro}
 
-\FIXME{We skip the introduction for now, but keep an introduction to this \LaTeX\xspace class for reference.}
+\FIXME{description of the things one needs for accurate shape measurement}
 
-This is a paper and note template for the LSST DESC \citep{Overview,ScienceBook,WhitePaper}.
-You can delete all this tutorial text whenever you like.
+This document describes progress made on several of these aspects:
+\begin{itemize}
+\item in Section 2.1, we describe the integration of complex world coordinate solutions into the multi-epoch data structures used by shape measurement codes in DES
+\item in Section 2.2, we outline the concept of an API that provides information similar to MEDS but fits the LSST data management structures
+\item in Section 3, we report on progress on the PSF modelling code PIFF
+\item in Section 4, we describe how to run the BFD shape measurement method on MEDS data structures
+\item in Section 5, we develop an image simulation framework suitable for testing shape measurement -- both end-to-end and with some complications of real data turned off. 
+\end{itemize}
 
-You can easily switch between various \LaTeX\xspace styles for internal notes and peer reviewed journals.
-Documents can be compiled using the provided \code{Makefile}.
-The command \code{make} with no arguments compiles \code{main.tex} using the  \code{lsstdescnote.cls} style.
-If you want to upgrade your Note into a journal article, just choose a journal name, between \code{make apj} (ApJ preprint format), \code{make apjl} (which uses the \code{emulateapj} style), \code{make prd}, \code{make prl}, and \code{make mnras}.
-
-
-There are a number of useful \LaTeX\xspace commands predefined in \code{macros.tex}.
-Notice that the section labels are prefixed with \code{sec:} to allow the use of the \verb=\secref= command to reference a section (\ie, \secref{intro}).
-Figures can be referenced with the \verb=\figref= command, which assumes that the figure label is prefixed with \code{fig:}.
-In \figref{example} we show an example figure.
-You'll notice that the actual figure file is found in the \code{figures} directory.
-However, because we have specified this directory in our \verb=\graphicspath= we do not need to explicitly specify the path to the image.
-
-The \code{macros.tex} package also contains some conventional scientific units like \angstrom, \GeV, \Msun, etc. and some editorial tools for highlighting \FIXME{issues}, \CHECK{text to be checked}, \COMMENT{comments}, and \NEW{new additions}.
-
-
-Similar to the figure before, here we have included a table of data from \code{tables/table.tex}.
-Notice that again we are able to reference \tabref{example} with the \verb=\tabref= command using the \code{tab:} prefix.
-Also notice that we haven't needed to specify the full path to the table because in the \code{Makefile} we include \code{./tables} directory in the \code{\$TEXINPUTS} environment variable.
-
-\input{table}
-
-Equations appear as follows, and can be referred to as, for example, \eqnref{example} -- just as for tables, we use the \verb=\eqnref= command using the \code{eqn:} prefix.
-\begin{equation}
-  \label{eqn:example}
-  \langle f(k) \rangle = \frac{ \sum_{t=0}^{N}f(t,k) }{N}
-\end{equation}
-
-
-\figref{example} shows an example figure, referred to with the \verb=\figref= command and the \code{fig:} prefix.
-
-\begin{figure}
-\includegraphics[width=0.9\columnwidth]{example.png}
-\caption{An example figure: the LSST DESC logo, copied from \code{.logos/desc-logo.png} into \code{figures/example.png}. \label{fig:example}}
-\end{figure}
-
-If you are planning on committing your paper to GitHub, it's a good idea to write your tex as one sentence per line.
-This allows for an easier \code{diff} of changes.
-It also makes sense to think of latex as \emph{code}, and sentences as logical statements, occupying one line each.
-Each line must ``compile'' in the mind of the reader.
 
 % ----------------------------------------------------------------------
 
